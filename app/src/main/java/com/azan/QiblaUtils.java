@@ -19,7 +19,7 @@ public class QiblaUtils {
      * Return qibla direction in degrees from the north (clock-wise).
      *
      * @param latitude  latitude in degrees
-     * @param longitude longitude in degrees
+     * @param longitude longitude in degreesl
      * @return 0 means north, 90 means east, 270 means west, etc
      */
     public static double qibla(double latitude, double longitude) {
@@ -43,28 +43,33 @@ public class QiblaUtils {
 	}
 
 	public static String direction(LatLng latlng1, LatLng latlng2) {
-		double delta = 22.5;
 		String direction = "Unknown";
 		double heading = SphericalUtil.computeHeading(latlng1, latlng2);
+		Direction arah = new Direction();
+		arah.toLeft = new String[]{"Utara", "Barat Laut", "Barat", "Barat Daya", "Selatan"};
+		arah.toRight = new String[]{"Utara", "Timur Laut", "Timur", "Tenggara", "Selatan"};
+		return arah.get(heading);
+	}
 
-		if ((heading >= 0 && heading < delta) || (heading < 0 && heading >= -delta)) {
-			direction = "Utara";
-		} else if (heading >= delta && heading < 90 - delta) {
-			direction = "Timur Laut";
-		} else if (heading >= 90 - delta && heading < 90 + delta) {
-			direction = "Timur";
-		} else if (heading >= 90 + delta && heading < 180 - delta) {
-			direction = "Tenggara";
-		} else if (heading >= 180 - delta || heading <= -180 + delta) {
-			direction = "Selatan";
-		} else if (heading >= -180 + delta && heading < -90 - delta) {
-			direction = "Barat Daya";
-		} else if (heading >= -90 - delta && heading < -90 + delta) {
-			direction = "Barat";
-		} else if (heading >= -90 + delta && heading < -delta) {
-			direction = "Barat Laut";
+        public class Direction{
+		private double delta = 360/16;
+		private double[] degree = new double[]{0, 45, 90, 135, 180};
+		public String[] toLeft;
+		public String[] toRight;
+		public boolean isValid(){
+			return degree.length == toLeft.length && degree.length == toRight.length;
+  		}
+  		public String get(double heading){
+		String dir = "Tidak diketahui";
+		for(int i = 0; i < degree.length ; i++)
+			if(antara(Math.abs(heading), i)){
+				dir = (heading >= 0? toRight : toLeft)[i];
+				break;
+	  		}
+		return dir;
 		}
-
-		return direction;
+		private boolean antara(double target, int no){
+			return target >= degree[no] - delta && target <= degree[no] + delta;
+  		}
 	}
 }
